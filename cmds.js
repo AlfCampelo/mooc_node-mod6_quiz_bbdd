@@ -1,9 +1,6 @@
-
-
 const {log, biglog, errorlog, colorize} = require("./out");
-
 const model = require('./model');
-
+const pjson = require('./package.json');
 
 /**
  * Muestra la ayuda.
@@ -174,9 +171,8 @@ exports.playCmd = rl => {
  * @param rl Objeto readline usado para implementar el CLI.
  */
 exports.creditsCmd = rl => {
-    log('Autores de la práctica:');
-    log('Nombre 1', 'green');
-    log('Nombre 2', 'green');
+    log(colorize('Autor de la practica:', 'green'));
+    log(`${pjson.author}`, 'green');
     rl.prompt();
 };
 
