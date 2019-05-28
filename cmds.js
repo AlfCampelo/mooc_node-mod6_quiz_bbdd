@@ -45,6 +45,29 @@ exports.listCmd = rl => {
 
 
 /**
+* Esta función devuelve una promesa que:
+* - Valida que se ha introducido un valor para el parámetro.
+* - Convierte el parámetro en un número entero.
+* Si todo va bien, la promesa se satisface y devuelve el valor de id a usar.
+*
+* @param id Parámetro con índice a validar.
+*/
+const validateId = id => {
+    return new Sequelize.Promise((resolve, reject) =>{
+        if(typeof id === 'undefined'){
+            reject(new Error(`Falta el parámetro <id>.`));
+        }else{
+            id = parseInt(id); // coger la parte entera y descartar lo demás.
+            if(Number.isNaN(id)){
+                reject(new Error(`El valor del parámetro <id> no es un número.`));
+            }else{
+                resolve(id);
+            }
+        }
+    });
+};
+
+/**
  * Muestra el quiz indicado en el parámetro: la pregunta y la respuesta.
  *
  * @param rl Objeto readline usado para implementar el CLI.
