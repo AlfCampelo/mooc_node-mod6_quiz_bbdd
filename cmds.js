@@ -92,6 +92,23 @@ exports.showCmd = (rl, id) => {
 
 
 /**
+ * Esta función devuelve una promesa que cuando se cumple, proporcian el texto introducido.
+ * Entonces la llamada a then que hay que hacer la promesa devuelta sera:
+ *    .then(answer => {...})
+ * También colorea en rojo el texto de la pregunta, elimina espacios al principio y final. 
+ * 
+ * @param rl Objeto readline usado para implementar el CLI.
+ * @param text Pregunta que hay que hacerle al usuario.
+ */
+const makeQuestion = (rl, text) => {
+    return new Sequelize.Promise((resolve, reject) => {
+        rl.question(colorize(text, 'red'), answer => {
+            resolve(answer.trim());
+        });
+    });
+};
+
+/**
  * Añade un nuevo quiz al módelo.
  * Pregunta interactivamente por la pregunta y por la respuesta.
  *
@@ -103,15 +120,28 @@ exports.showCmd = (rl, id) => {
  * @param rl Objeto readline usado para implementar el CLI.
  */
 exports.addCmd = rl => {
-
-    rl.question(colorize(' Introduzca una pregunta: ', 'red'), question => {
-
-        rl.question(colorize(' Introduzca la respuesta ', 'red'), answer => {
-
-            model.add(question, answer);
-            log(` ${colorize('Se ha añadido', 'magenta')}: ${question} ${colorize('=>', 'magenta')} ${answer}`);
-            rl.prompt();
-        });
+    makeQuestion(rl, ' Introduzca una pregunta: ')
+    .then(q => {
+        return makeQuestion(rl, 'Introduzca la respuesta ')
+        .then(a =>{
+            return {question: q, answer:a};
+        });        
+    })
+    .then(quiz => {
+        return models.quiz.create(quiz);
+    })
+    .then(quiz => {
+        log(`${colorize('Se ha añadido', 'magenta')}: ${quiz.question} ${colorize('=>', 'magenta')} ${quiz.answer}`);       
+    })
+    .catch(Sequelize.ValidationError, error => {
+        errorlog('El quiz es erroneo:');
+        error.errors.forEach(({message}) => errorlog(message));
+    })
+    .catch(error =>{
+        errorlog(error.message);
+    })
+    .then(() => {
+        rl.prompt();
     });
 };
 
