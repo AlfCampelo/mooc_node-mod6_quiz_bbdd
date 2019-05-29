@@ -13,7 +13,7 @@
     "CORE",
     "QUIT"
   ],
-  "author": "Alfredo Campelo Guerra",
+  "author": ["ging", "Alfredo Campelo Guerra"],
   "license": "Unlicense",
   "dependencies": {
     "underscore": "^1.8.3",

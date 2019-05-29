@@ -217,8 +217,26 @@ exports.editCmd = (rl, id) => {
  * @param id Clave del quiz a probar.
  */
 exports.testCmd = (rl, id) => {
-    log('Probar el quiz indicado.', 'red');
-    rl.prompt();
+    validateId(id)
+    .then(id => models.quiz.findById(id))
+    .then(quiz => {
+        if(!quiz){
+            throw new Error(`No existe un quiz asociado al id = ${id}.`);
+        }else{
+            rl.question(colorize(`${quiz.question}: `, 'red'), answer => {
+                // Comprueba sí la respuesta introducida es correcta 
+                answer.toLowerCase().trim() === quiz.answer.toLowerCase().trim() ? biglog('CORRECTO', 'green') : biglog('INCORRECTO', 'red');
+                rl.prompt();
+            }
+        )}
+    })
+    .catch(error => {
+        errorlog(error.message);
+    })
+    .then(() => {
+        rl.prompt();
+    })
+
 };
 
 
@@ -240,8 +258,8 @@ exports.playCmd = rl => {
  * @param rl Objeto readline usado para implementar el CLI.
  */
 exports.creditsCmd = rl => {
-    log(colorize('Autor de la practica:', 'green'));
-    log(`${pjson.author}`, 'green');
+    log(colorize('Autores de la practica:', 'green'));
+    pjson.author.forEach(elem => log(`Autor: \n${elem}`, 'cyan'));
     rl.prompt();
 };
 
