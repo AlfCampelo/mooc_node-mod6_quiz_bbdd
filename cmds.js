@@ -75,7 +75,7 @@ const validateId = id => {
  */
 exports.showCmd = (rl, id) => {
     validateId(id)
-    .then(id => models.quiz.findById(id))
+    .then(id => models.quiz.findByPk(id))
     .then(quiz => {
         if(!quiz){
             throw new Error(`No existe un quiz asociado al id=${id}.`);
@@ -177,7 +177,7 @@ exports.deleteCmd = (rl, id) => {
  */
 exports.editCmd = (rl, id) => {
     validateId(id)
-    .then(id => models.quiz.findById(id))
+    .then(id => models.quiz.findByPk(id))
     .then(quiz => {
         if(!quiz){
             throw new Error(`No existe un quiz asociado al id=${id}.`);
@@ -218,7 +218,7 @@ exports.editCmd = (rl, id) => {
  */
 exports.testCmd = (rl, id) => {
     validateId(id)
-    .then(id => models.quiz.findById(id))
+    .then(id => models.quiz.findByPk(id))
     .then(quiz => {
         if(!quiz){
             throw new Error(`No existe un quiz asociado al id = ${id}.`);
