@@ -247,8 +247,61 @@ exports.testCmd = (rl, id) => {
  * @param rl Objeto readline usado para implementar el CLI.
  */
 exports.playCmd = rl => {
-    log('Jugar.', 'red');
-    rl.prompt();
+    // Variable que recoge el marcador
+    let score = 0;
+    // Array que guarda las preguntas aún no realizadas
+    let toBeResolved = [];
+    // Recoge todas los registros de la tabla
+    models.quiz.findAll()
+    // Itera sobre los registros y los guarda en el array
+    .each(quiz => {        
+        toBeResolved.push(quiz.id);
+    })
+    .then(quizzes => {
+        //Función que se llama de forma recursiva hasta finalizar el juego,
+        // ya sea por responder todas las preguntas o por error cometido.
+        const playOne = () => {
+            //Comprueba que el array no este vacío
+            if(quizzes.length === 0){
+                // Muestra el marcador
+                log(colorize('Has acertado: ', 'green'));
+                biglog(score, 'green');
+                rl.prompt();
+            }else{
+                // Genera un número aleatorio
+                let alea = Math.round(Math.random() * (quizzes.length - 1));
+                // Escoge una pregunta con el número aletorio            
+                let quiz = quizzes[alea];
+                // Realiza la pregunta y aguarda una respuesta
+                rl.question(colorize(`${quiz.question}: `, 'red'), answer => {
+                    // Comprueba si la respuesta es correcta
+                    if(answer.toLowerCase().trim() === quiz.answer.toLowerCase().trim()){
+                        biglog('CORRECTO', 'green');
+                        // Incrementa los aciertos                    
+                        score++;
+                        log(colorize(`Lleva ${score} aciertos`), 'green');
+                        playOne();
+                    }else{
+                        // Si falla finaliza el juego
+                        biglog('INCORRECTO', 'red');
+                        log(`Fin del juego.`, 'red');
+                        log(`Aciertos:`, 'green');
+                        biglog(score, 'green');
+                        rl.prompt();
+                    }
+                });
+            // Elimina del array la pregunta realizada
+            quizzes.splice(alea, 1);
+            }
+        }
+        playOne();
+    })
+    .catch(error => {
+        errorlog(error.message);
+    })
+    .then(() => {
+        rl.prompt();
+    });
 };
 
 
